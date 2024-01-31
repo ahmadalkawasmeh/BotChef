@@ -1,1 +1,4 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/5bxZGXM7)
+# Group L2-G12
+## Project: Robotic Sandwich Maker
+
+### Group Members: Zach Gregory, Abdal Alkawasmeh, Ahmad Alkawasmeh, Ryan Rizk
