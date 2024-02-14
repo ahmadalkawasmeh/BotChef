@@ -7,19 +7,19 @@ ___
   - 6 hours
 2. **Give rough breakdown of hours spent on 1-3 of the following:***
    (meetings, information gathering, design, research, brainstorming, evaluating options, prototyping options, writing/documenting, refactoring, testing, software implementation, hardware implementation)
-   1. project research, 3 hours
-   2. group meeting, 2 hour
-   3.  writing, 1 hour
+   1. research, 3 hours
+   2. writing, 3 hours
+    
 
 3. ***What did you accomplish this week?*** _(Be specific)_
-  - Worked with my team on part 2 of Lab 4 to make sure that we are all on the same page
-  - Discussed different prototypes of the sandwich maker project and concluded to go with the desired one
-  - Did some background and objective research regarding the written proposal
+  - Peer reiewed classmates proposal drafts and gave some helpful feedback
+  - Read the peer review from other classmates about our team's draft proposal and took in account of what needs to be improved
+  - Did some more research regarding the background of our project
   
 4. ***How do you feel about your progress?*** _(brief, free-form reflection)_
-  - I feel good about my progress, and it feels good to have everything organized and ready to go with the proposal.
+  - I feel good about my progress as we have the proposal finalized and ready to go deeper with the project.
 5. ***What are you planning to do next week***? _(give specific goals)_
-  - I will be looking forward for more research about the project, getting feedback from the proposal and finalizing the proposal. Also, I am looking to maybe get started with building the real cheff robot!
-  - Have a few meetings with my team
+  - Looking forward to meet with my team to discuss further about the project and what components need to be obtained.
+  - submit the form for the components
 6. ***Is anything blocking you that you need from others?*** _(What do you need from whom)_
-  -everything seems good
+  -no
