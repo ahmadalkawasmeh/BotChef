@@ -37,10 +37,10 @@ def check_sauce_level():
 
 
 # Decrement sauce level in Firebase
-def update_sauce_level():
+def update_sauce_level(n=1):
     # Retrieve current sauce level and decrement
     current_sauce_level = (db.child("Employee").child("IngredientsLevel").child("sauce").get()).val()
-    new_sauce_level = current_sauce_level - 1
+    new_sauce_level = current_sauce_level - n
     # Overwrite sauce level in Firebase with updated level
     db.child("Employee").child("IngredientsLevel").child("sauce").set(new_sauce_level)
 
@@ -54,8 +54,8 @@ def get_employee_phone(employeeNum="Employee1"):
 def notify_employee(employeeNum="Employee1"):
     current_level = check_sauce_level()
     employee_phone = get_employee_phone(employeeNum)
-    message = messageService.parse_message(0, current_level)
-    messageService.send_message(message, employee_phone)
+    msg_body = messageService.parse_message(0, current_level)
+    messageService.send_sms_message(msg_body, employee_phone)
     print("Low sauce notification sent to : " + str(employeeNum) + " , and the phone number is " + str(employee_phone))
     sauce_refill()
 

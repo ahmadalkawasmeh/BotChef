@@ -27,9 +27,9 @@ def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody=
 
 
 # Initialize environment to send a TCP message
-def send_message(piNum, piPort, msgType, msgBody):
+def send_message_then_receive_reply(piNum, msgType, msgBody):
     host = IPService.get_ip(piNum)
-    port = piPort
+    port = IPService.get_port(piNum)
     timeout_seconds = 15
 
     pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -78,9 +78,9 @@ def send_message(piNum, piPort, msgType, msgBody):
 
 
 # Initialize environment to receive TCP messages from Pi2
-def receive_message():
-    host = '0.0.0.0'
-    port = 53000
+def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
+    host = hostIp
+    port = portNum
 
     # Create and bind a new socket for receiving
     pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -173,4 +173,3 @@ def send_sms_message(msg_body, employee_phone):
 
     except TwilioRestException as e:
         print(f"Twilio error message: {e}")
-

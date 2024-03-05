@@ -47,4 +47,20 @@ def save_ip(ip):
 # Retrieve IP of other Pis from Firebase
 def get_ip(piNum):
     stored_ip = (db.child("IPAddresses").child(piNum).get()).val()
-    return stored_ip 
+    return stored_ip
+
+
+# Return port numbers of other Pis
+def get_port(piNum):
+    if piNum == "Pi1":
+        return 51000
+
+    elif piNum == "Pi2":
+        return 52000
+
+    elif piNum == "Pi4":
+        return 54000
+
+    else:
+        print("Invalid piNum provided")
+        return None
