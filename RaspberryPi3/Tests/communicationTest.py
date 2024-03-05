@@ -1,6 +1,8 @@
 from RaspberryPi3.helperFunctions import messageService
 
-# Test sending a message
+# Test TCP communication between Pi3 and Pi2, Pi3 sends a message to Pi2 containing a simple math calculation 3/2,
+#  Pi2 performs the calculation and should reply with a message containing 1.5
+#   Pi3 then checks the expected result against the actual received result and reports if the test Passes or Failed
 def send_message_test():
     piNum = "Pi2"
     piPort = 52000

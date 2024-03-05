@@ -29,6 +29,7 @@ def get_local_ip_address(n=1):
         print(f"Error getting local IP address: {e}")
         return None
 
+
 # Upload IP address of my Raspberry Pi to Firebase
 def save_ip(ip):
     db.child("IPAddresses").child("Pi3").set(ip)
@@ -42,7 +43,8 @@ def save_ip(ip):
     #
     # and will also overwrite the previously stored ip address of my Raspberry Pi
 
+
 # Retrieve IP of other Pis from Firebase
 def get_ip(piNum):
     stored_ip = (db.child("IPAddresses").child(piNum).get()).val()
-    return stored_ip
+    return stored_ip 

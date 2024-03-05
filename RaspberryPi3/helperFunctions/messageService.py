@@ -6,8 +6,7 @@ from time import sleep
 
 
 # Parse incoming messages and form messages to send
-def parse_message(msg_code, sauce_level = 2, msgType = "TestCommunication", msgBody = "Reply with Hi Pi3"):
-
+def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody="Reply with Hi Pi3"):
     # From low sauce sms message to send to employee
     if msg_code == 0:
         low_sauce_message = 'Sauce level is critical! Current level is ' + str(sauce_level) + ', please refill.'
@@ -31,46 +30,54 @@ def parse_message(msg_code, sauce_level = 2, msgType = "TestCommunication", msgB
 def send_message(piNum, piPort, msgType, msgBody):
     host = IPService.get_ip(piNum)
     port = piPort
+    timeout_seconds = 15
 
     pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    decoded_reply = None  # Initialize the variable
+
     try:
+        pi3_socket.settimeout(timeout_seconds)  # Set socket timeout
         pi3_socket.connect((host, port))
 
-        while True:
-            # Create the JSON message to send in the form of a dictionary
-            message_json = parse_message(2, msgType, msgBody)
+        # Create the JSON message to send in the form of a dictionary
+        message_json = parse_message(2, msgType, msgBody)
 
-            # Convert the dictionary to a JSON string
-            message_str = json.dumps(message_json)
+        # Convert the dictionary to a JSON string
+        message_str = json.dumps(message_json)
 
-            # Send the JSON message to the server
-            pi3_socket.sendall(message_str.encode('utf-8'))
+        # Send the JSON message to the server
+        pi3_socket.sendall(message_str.encode('utf-8'))
 
-            # Check for the exit condition
-            if message_json[msgType]["message"].lower() == 'exit':
-                break
+        # Get ACK reply from the receiver
+        raw_reply = pi3_socket.recv(1024)
 
-            # Get ACK reply from the receiver
-            raw_reply = pi3_socket.recv(1024)
+        # Handle partial or fragmented data
+        if not raw_reply:
+            print("No reply received")
+            return None
 
-            # Handle partial or fragmented data (real-world scenario)
-            if not raw_reply:
-                break
+        decoded_reply = json.loads(raw_reply.decode('utf-8'))
+        print("Acknowledgment from " + piNum + " received with contents: ")
+        print(decoded_reply)
 
-            decoded_reply = json.loads(raw_reply.decode('utf-8'))
-            print("Acknowledgment from " + piNum + " received with contents: ")
-            print(decoded_reply)
+    # If piNum takes too long to respond
+    except socket.timeout:
+        print("Socket timout occurred, " + piNum + " didn't reply within 15 seconds")
 
+    # Print any socket errors that occur
     except socket.error as e:
         print(f"Socket error: {e}")
 
+    # Close socket
     finally:
         pi3_socket.close()
-        return decoded_reply
+
+    # Return None if there was an error or timeout
+    return decoded_reply if 'decoded_reply' in locals() else None
 
 
-# Initialize environment to receive TCP messages
+# Initialize environment to receive TCP messages from Pi2
 def receive_message():
     host = '0.0.0.0'
     port = 53000
@@ -86,64 +93,84 @@ def receive_message():
     pi2_socket, pi2_address = pi3_socket.accept()
     print(f"Connection established from Pi2 at {pi2_address}")
 
+    received_msg = None  # Initialize variable
+
     try:
         # Wait for incoming message
-        while True:
-            data = pi2_socket.recv(1024)
-            if not data:
-                break
+        data = pi2_socket.recv(1024)
+        if not data:
+            print("No data received")
+            return None
 
-            received_msg = json.loads(data.decode('utf-8'))
-            print("Received JSON message: ")
-            print(received_msg)
+        received_msg = json.loads(data.decode('utf-8'))
+        print("Received JSON message: ")
+        print(received_msg)
 
-            # Check if the received message has the expected JSON structure
-            if "Signal" in received_msg:
-                sender = received_msg["Signal"]["sender"]
-                message = received_msg["Signal"]["message"]
-                orderNum = received_msg["Signal"]["orderNum"]
+        # Check if the received message has the expected JSON structure
+        if "Signal" in received_msg:
+            sender = received_msg["Signal"]["sender"]
+            message = received_msg["Signal"]["message"]
+            orderNum = received_msg["Signal"]["orderNum"]
 
-                # Check if customer choose to add sauce to their sandwich
-                ordered_sauce = sauceService.get_ordered_sauce(orderNum)
-                if ordered_sauce == "True":
-                    # Check if sauce level before dispensing
-                    sauce_level = sauceService.get_sauce_level()
-                    # If sauce level has reached zero, notify employee and wait for refill before continuing
-                    if sauce_level <= 0:
-                        print("Sauce has ran out, notifying and waiting for employee to refill")
-                        sauceService.notify_employee() # ToDo get a specific employee number to pass on
-                        sleep(5)
-                        sauceService.dispense_sauce(ordered_sauce)
-                        sauceService.update_sauce_level()
-                    else:
-                        sauceService.dispense_sauce(ordered_sauce)
-                        sauceService.update_sauce_level()
+            # Check if customer choose to add sauce to their sandwich
+            ordered_sauce = sauceService.get_ordered_sauce(orderNum)
+            if ordered_sauce == "True":
+                # Check if sauce level is low before dispensing
+                sauce_level = sauceService.check_sauce_level()
+                # If sauce level has reached zero, notify employee and wait for refill before continuing
+                if sauce_level <= 0:
+                    print("Sauce has ran out, notifying and waiting for employee to refill")
+                    sauceService.notify_employee()  # ToDo get a specific employee number to pass on
+                    sleep(5)  # ToDo better waiting mechanism
+                    sauceService.dispense_sauce(ordered_sauce)
+                    sauceService.update_sauce_level()
                 else:
                     sauceService.dispense_sauce(ordered_sauce)
-
-                # Send an acknowledgment
-                response_json = parse_message(1)
-                response_data = json.dumps(response_json)
-                pi2_socket.sendall(response_data.encode('utf-8'))
+                    sauceService.update_sauce_level()
             else:
-                print("Invalid JSON message structure received")
+                sauceService.dispense_sauce(ordered_sauce)
+
+            # Send an acknowledgment
+            response_json = parse_message(1)
+            response_data = json.dumps(response_json)
+            pi2_socket.sendall(response_data.encode('utf-8'))
+        else:
+            print("Invalid JSON message structure received")
+
+    # Print any socket errors that occur
+    except socket.error as e:
+        print(f"Socket error: {e}")
+
     finally:
         # Close the sockets
         pi3_socket.close()
         pi2_socket.close()
-        return received_msg
+
+    return received_msg if 'received_msg' in locals() else None
 
 
 # Send an SMS notification to employee
-def send_smsMessage(message, employee_phone):
+from twilio.base.exceptions import TwilioRestException
+
+
+def send_sms_message(msg_body, employee_phone):
     # Setting Twilio API parameters and initializing a client
     account_sid = 'AC8569b737cec74fdcbd0e6ede28ba4bc9'
     auth_token = 'aa56f3a8083e9577ca17bbef42eb6e09'
-    client = Client(account_sid, auth_token)
 
-    # Sending an sms message to employee
-    message = client.messages.create(
-        from_='+15177438114',
-        body= message,
-        to= str(employee_phone)
-    )
+    try:
+        # Initializing Twilio client
+        client = Client(account_sid, auth_token)
+
+        # Sending an SMS message to employee
+        message = client.messages.create(
+            from_='+15177438114',
+            body=msg_body,
+            to=str(employee_phone)
+        )
+
+        print(f"SMS sent successfully. SID: {message.sid}")
+
+    except TwilioRestException as e:
+        print(f"Twilio error message: {e}")
+
