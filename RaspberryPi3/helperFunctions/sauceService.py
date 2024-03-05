@@ -16,7 +16,7 @@ db = firebase.database()
 
 
 # Check the order info in Firebase and retrieve the customer's choice for sauce
-def get_ordered_sauce(orderNum):
+def get_ordered_sauce(orderNum = "order1"):
     sauce_choice = (
         db.child("Customer").child(orderNum).child("orderInfo").child("ingredients").child("sauce").get()).val()
     return sauce_choice

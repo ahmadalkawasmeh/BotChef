@@ -1,19 +1,137 @@
+from RaspberryPi3.helperFunctions import sauceService, IPService
 from twilio.rest import Client
+import socket
+import json
+from time import sleep
+
 
 # Parse incoming messages and form messages to send
-def parse_message(msg_code, sauce_level = 2):
+def parse_message(msg_code, sauce_level = 2, msgType = "TestCommunication", msgBody = "Reply with Hi Pi3"):
+
+    # From low sauce sms message to send to employee
     if msg_code == 0:
-        # From low sauce sms message to employee
         low_sauce_message = 'Sauce level is critical! Current level is ' + str(sauce_level) + ', please refill.'
         return low_sauce_message
 
+    # Form ACK JSON reply to Pi2 after sauce dispensed
+    elif msg_code == 1:
+        return {"ACK": {"sender": "Pi3", "message": "complete"}}
+
+    # Form JSON message to send via TCP
+    elif msg_code == 2:
+        return {msgType: {"sender": "Pi3", "message": msgBody}}
+
+    # Incorrect msgCode
+    else:
+        print("Invalid message code")
+        return None
+
 
 # Initialize environment to send a TCP message
-def send_message():
+def send_message(piNum, piPort, msgType, msgBody):
+    host = IPService.get_ip(piNum)
+    port = piPort
+
+    pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        pi3_socket.connect((host, port))
+
+        while True:
+            # Create the JSON message to send in the form of a dictionary
+            message_json = parse_message(2, msgType, msgBody)
+
+            # Convert the dictionary to a JSON string
+            message_str = json.dumps(message_json)
+
+            # Send the JSON message to the server
+            pi3_socket.sendall(message_str.encode('utf-8'))
+
+            # Check for the exit condition
+            if message_json[msgType]["message"].lower() == 'exit':
+                break
+
+            # Get ACK reply from the receiver
+            raw_reply = pi3_socket.recv(1024)
+
+            # Handle partial or fragmented data (real-world scenario)
+            if not raw_reply:
+                break
+
+            decoded_reply = json.loads(raw_reply.decode('utf-8'))
+            print("Acknowledgment from " + piNum + " received with contents: ")
+            print(decoded_reply)
+
+    except socket.error as e:
+        print(f"Socket error: {e}")
+
+    finally:
+        pi3_socket.close()
+        return decoded_reply
 
 
 # Initialize environment to receive TCP messages
-def recieve_message():
+def receive_message():
+    host = '0.0.0.0'
+    port = 53000
+
+    # Create and bind a new socket for receiving
+    pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    pi3_socket.bind((host, port))
+    pi3_socket.listen(1)
+
+    print(f"Pi3 listening on {host}:{port}")
+
+    # Create a new socket for the incoming connection from Pi2
+    pi2_socket, pi2_address = pi3_socket.accept()
+    print(f"Connection established from Pi2 at {pi2_address}")
+
+    try:
+        # Wait for incoming message
+        while True:
+            data = pi2_socket.recv(1024)
+            if not data:
+                break
+
+            received_msg = json.loads(data.decode('utf-8'))
+            print("Received JSON message: ")
+            print(received_msg)
+
+            # Check if the received message has the expected JSON structure
+            if "Signal" in received_msg:
+                sender = received_msg["Signal"]["sender"]
+                message = received_msg["Signal"]["message"]
+                orderNum = received_msg["Signal"]["orderNum"]
+
+                # Check if customer choose to add sauce to their sandwich
+                ordered_sauce = sauceService.get_ordered_sauce(orderNum)
+                if ordered_sauce == "True":
+                    # Check if sauce level before dispensing
+                    sauce_level = sauceService.get_sauce_level()
+                    # If sauce level has reached zero, notify employee and wait for refill before continuing
+                    if sauce_level <= 0:
+                        print("Sauce has ran out, notifying and waiting for employee to refill")
+                        sauceService.notify_employee() # ToDo get a specific employee number to pass on
+                        sleep(5)
+                        sauceService.dispense_sauce(ordered_sauce)
+                        sauceService.update_sauce_level()
+                    else:
+                        sauceService.dispense_sauce(ordered_sauce)
+                        sauceService.update_sauce_level()
+                else:
+                    sauceService.dispense_sauce(ordered_sauce)
+
+                # Send an acknowledgment
+                response_json = parse_message(1)
+                response_data = json.dumps(response_json)
+                pi2_socket.sendall(response_data.encode('utf-8'))
+            else:
+                print("Invalid JSON message structure received")
+    finally:
+        # Close the sockets
+        pi3_socket.close()
+        pi2_socket.close()
+        return received_msg
 
 
 # Send an SMS notification to employee
