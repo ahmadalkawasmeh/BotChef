@@ -34,6 +34,11 @@ def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody=
 def send_message_then_receive_reply(piNum, msgType, msgBody):
     host = IPService.get_ip(piNum)
     port = IPService.get_port(piNum)
+
+    # Use these values instead if you're running the independent test
+    # host = <your Pi's local ip address>
+    # port = <your Pi's port number>
+
     timeout_seconds = 15
 
     pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

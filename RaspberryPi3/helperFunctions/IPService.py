@@ -58,6 +58,9 @@ def get_port(piNum):
     elif piNum == "Pi2":
         return 52000
 
+    elif piNum == "Pi3":
+        return 53000
+
     elif piNum == "Pi4":
         return 54000
 

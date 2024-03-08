@@ -28,7 +28,11 @@ def send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgB
     if "TestACK" in received_reply:
         result_calculation = received_reply["TestACK"]["message"]
         actual_result = float(result_calculation)
-        expected_result = 1.5
+
+        parsed_calculation = msgBody.split("/")
+        first_number = float(parsed_calculation[0])
+        second_number = float(parsed_calculation[1])
+        expected_result = first_number / second_number
 
         if expected_result == actual_result:
             test_outcome = ("send_message_then_receive_reply_test() PASSED, expected: " + str(expected_result) +
