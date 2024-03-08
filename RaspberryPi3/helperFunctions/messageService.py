@@ -1,8 +1,12 @@
-from RaspberryPi3.helperFunctions import sauceService, IPService
-from twilio.rest import Client
-import socket
 import json
+import socket
 from time import sleep
+
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
+
+from . import IPService
+from . import sauceService
 
 
 # Parse incoming messages and form messages to send
@@ -41,7 +45,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         pi3_socket.connect((host, port))
 
         # Create the JSON message to send in the form of a dictionary
-        message_json = parse_message(2, msgType, msgBody)
+        message_json = parse_message(2, msgType=msgType, msgBody=msgBody)
 
         # Convert the dictionary to a JSON string
         message_str = json.dumps(message_json)
@@ -116,7 +120,7 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
             ordered_sauce = sauceService.get_ordered_sauce(orderNum)
             if ordered_sauce == "True":
                 # Check if sauce level is low before dispensing
-                sauce_level = sauceService.check_sauce_level()
+                sauce_level = sauceService.get_db_sauce_level()
                 # If sauce level has reached zero, notify employee and wait for refill before continuing
                 if sauce_level <= 0:
                     print("Sauce has ran out, notifying and waiting for employee to refill")
@@ -150,9 +154,6 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
 
 
 # Send an SMS notification to employee
-from twilio.base.exceptions import TwilioRestException
-
-
 def send_sms_message(msg_body, employee_phone):
     # Setting Twilio API parameters and initializing a client
     account_sid = 'AC8569b737cec74fdcbd0e6ede28ba4bc9'
