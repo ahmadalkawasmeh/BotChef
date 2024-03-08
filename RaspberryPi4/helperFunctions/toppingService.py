@@ -1,6 +1,6 @@
 import pyrebase
 
-from RaspberryPi4.helperFunctions import messageService
+from . import messageService
 
 # Firebase connection parameters
 config = {

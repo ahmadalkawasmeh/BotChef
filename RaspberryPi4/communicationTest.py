@@ -122,7 +122,7 @@ def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=54000):
 def save_and_get_ip_test():
     piNum = "Pi4"
     # Get my actual IP
-    original_ip = IPService.get_local_ip_address()
+    original_ip = IPService.get_local_ip_address(0)
     # Upload my IP to Firebase
     IPService.save_ip(original_ip)
     # Retrieve the IP address from Firebase
