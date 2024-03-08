@@ -33,18 +33,18 @@ def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody=
 # Initialize environment to send a TCP message
 def send_message_then_receive_reply(piNum, msgType, msgBody):
     #host = IPService.get_ip(piNum)
-    host='192.168.2.54'
+    host='172.17.59.44'
     port=51000
     #port = IPService.get_port(piNum)
     timeout_seconds = 15
 
-    pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    pi1_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     decoded_reply = None  # Initialize the variable
 
     try:
-        pi3_socket.settimeout(timeout_seconds)  # Set socket timeout
-        pi3_socket.connect((host, port))
+        pi1_socket.settimeout(timeout_seconds)  # Set socket timeout
+        pi1_socket.connect((host, port))
 
         # Create the JSON message to send in the form of a dictionary
         message_json = parse_message(2, msgType=msgType, msgBody=msgBody)
@@ -56,7 +56,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         pi3_socket.sendall(message_str.encode('utf-8'))
 
         # Get ACK reply from the receiver
-        raw_reply = pi3_socket.recv(1024)
+        raw_reply = pi1_socket.recv(1024)
 
         # Handle partial or fragmented data
         if not raw_reply:
@@ -84,26 +84,26 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
 
 
 # Initialize environment to receive TCP messages from Pi2
-def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
+def receive_message_then_reply(hostIp='0.0.0.0', portNum=54000):
     host = hostIp
     port = portNum
 
     # Create and bind a new socket for receiving
-    pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    pi3_socket.bind((host, port))
-    pi3_socket.listen(1)
+    pi1_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    pi1_socket.bind((host, port))
+    pi1_socket.listen(1)
 
-    print(f"Pi3 listening on {host}:{port}")
+    print(f"Pi1 listening on {host}:{port}")
 
     # Create a new socket for the incoming connection from Pi2
-    pi2_socket, pi2_address = pi3_socket.accept()
-    print(f"Connection established from Pi2 at {pi2_address}")
+    pi4_socket, pi4_address = pi1_socket.accept()
+    print(f"Connection established from Pi2 at {pi4_address}")
 
     received_msg = None  # Initialize variable
 
     try:
         # Wait for incoming message
-        data = pi2_socket.recv(1024)
+        data = pi4_socket.recv(1024)
         if not data:
             print("No data received")
             return None
@@ -149,8 +149,8 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
 
     finally:
         # Close the sockets
-        pi3_socket.close()
-        pi2_socket.close()
+        pi1_socket.close()
+        pi1_socket.close()
 
     return received_msg if 'received_msg' in locals() else None
 

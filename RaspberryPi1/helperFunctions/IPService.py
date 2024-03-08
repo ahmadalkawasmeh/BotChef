@@ -15,7 +15,7 @@ db = firebase.database()
 
 
 # Retrieve my Pi's local IP address
-def get_local_ip_address(n=1):
+def get_local_ip_address(n=0):
     try:
         my_ip_address = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
         my_string_ip_address = f'"{my_ip_address}"'
@@ -32,7 +32,7 @@ def get_local_ip_address(n=1):
 
 # Upload IP address of my Raspberry Pi to Firebase
 def save_ip(ip):
-    db.child("IPAddresses").child("Pi3").set(ip)
+    db.child("IPAddresses").child("Pi1").set(ip)
 
     # The above command will add a JSON string to the Firebase in the form:
     # {
@@ -52,8 +52,8 @@ def get_ip(piNum):
 
 # Return port numbers of other Pis
 def get_port(piNum):
-    if piNum == "Pi1":
-        return 51000
+    if piNum == "Pi3":
+        return 53000
 
     elif piNum == "Pi2":
         return 52000

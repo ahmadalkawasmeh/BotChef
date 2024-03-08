@@ -24,11 +24,14 @@ db = firebase.database()
 def send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgBody="1/2"):
 
     received_reply = messageService.send_message_then_receive_reply(piNum, msgType, msgBody)
-
     if "TestACK" in received_reply:
         result_calculation = received_reply["TestACK"]["message"]
         actual_result = float(result_calculation)
-        expected_result = 0.5
+
+        parsed_calculation = msgBody.split("/")
+        first_number = float(parsed_calculation[0])
+        second_number = float(parsed_calculation[1])
+        expected_result = first_number / second_number
 
         if expected_result == actual_result:
             test_outcome = ("send_message_then_receive_reply_test() PASSED, expected: " + str(expected_result) +
@@ -61,14 +64,14 @@ def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=51000):
     port = portNum
 
     # Create and bind a new socket for receiving
-    pi3_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    pi3_socket.bind((host, port))
-    pi3_socket.listen(1)
+    pi1_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    pi1_socket.bind((host, port))
+    pi1_socket.listen(1)
 
-    print(f"Pi3 listening on {host}:{port}")
+    print(f"Pi1 listening on {host}:{port}")
 
     # Create a new socket for the incoming connection from Pi2
-    sender_socket, sender_address = pi3_socket.accept()
+    sender_socket, sender_address = pi1_socket.accept()
     print(f"Connection established from Pi at {sender_address}")
 
     try:
@@ -109,7 +112,7 @@ def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=51000):
 
     finally:
         # Close the sockets
-        pi3_socket.close()
+        pi1_socket.close()
         sender_socket.close()
 
 
@@ -119,7 +122,7 @@ def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=51000):
 def save_and_get_ip_test():
     piNum = "Pi1"
     # Get my actual IP
-    original_ip = IPService.get_local_ip_address()
+    original_ip = IPService.get_local_ip_address(0)
     # Upload my IP to Firebase
     IPService.save_ip(original_ip)
     # Retrieve the IP address from Firebase
@@ -146,32 +149,9 @@ def save_and_get_ip_test():
 
 
 
-# Test retrieving employee phone number from Firebase. First I will overwrite the phone number in Firebase with
-#  +16137075758 , then I will retrieve and compare it to the original phone number
-def get_employee_phone_test():
-    employeeNum = "Employee1"
-    set_employee_phone = "+16137075758"
-
-    db.child("Employee").child("Employees").child(employeeNum).child("phone").set(set_employee_phone)
-    firebase_employee_phone = sauceService.get_employee_phone(employeeNum)
-
-    if set_employee_phone == firebase_employee_phone:
-        test_outcome = ("get_employee_phone_test() PASSED, expected: " + str(set_employee_phone) +
-                        " , actual: " + str(firebase_employee_phone))
-        print(test_outcome)
-        senseHatController.sense_led("green", 2)
-        senseHatController.sense_message(test_outcome)
-
-    else:
-        test_outcome = ("get_employee_phone_test() FAILED, expected: " + str(set_employee_phone) +
-                        " , actual: " + str(firebase_employee_phone))
-        print(test_outcome)
-        senseHatController.sense_led("red", 2)
-        senseHatController.sense_message(test_outcome)
-
 def get_customer_name_test():
     orderNum = "Order1"
-    original_customer_name='jake'
+    original_customer_name="Jake"
     db.child("Customer").child(orderNum).child("CustomerInfo").child("name").set(original_customer_name)
     firebase_customer_name= login.get_customer_name(orderNum)
     if original_customer_name == firebase_customer_name:
@@ -190,7 +170,7 @@ def get_customer_name_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Customer").child(orderNum).child("CustomerInfo").child("name").set("True")
+        db.child("Customer").child(orderNum).child("CustomerInfo").child("name").set("Jake")
 
 
 # Test decrementing sauce the sauce level when dispensed. I will firstly overwrite the sauce level in Firebase with
@@ -198,7 +178,7 @@ def get_customer_name_test():
 #   sauce level which is 4 to the actual retrieved value
 def get_customer_email_test():
     orderNum="Order1"
-    original_customer_email='jake123@gmail.com'
+    original_customer_email="jake123@gmail.com"
 
     db.child("Customer").child(orderNum).child("CustomerInfo").child("email").set(original_customer_email)
     firebase_customer_email= login.get_customer_email(orderNum)
@@ -209,7 +189,7 @@ def get_customer_email_test():
         print(test_outcome)
         senseHatController.sense_led("green", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Customer").child(orderNum).child("CustomerInfo").child("email").set("True")
+        db.child("Customer").child(orderNum).child("CustomerInfo").child("email").set("jake123@gmail.com")
 
     else:
         test_outcome = ("get_customer_email_test() FAILED, expected: " + str(original_customer_email) +
@@ -218,17 +198,17 @@ def get_customer_email_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Customer").child(orderNum).child("CustomerInfo").child("email").set("True")
+        db.child("Customer").child(orderNum).child("CustomerInfo").child("email").set("jake123@gmail.com")
 
 
 # Test retrieving employee phone number from Firebase. First I will overwrite the phone number in Firebase with
 #  +16137075758 , then I will retrieve and compare it to the original phone number
 def get_customer_phone_test():
     orderNum="Order1"
-    original_customer_phone='+16137075758'
+    original_customer_phone="+16137075758"
 
     db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").set(original_customer_phone)
-    firebase_customer_phone= firebase.get_customer_phone(orderNum)
+    firebase_customer_phone= login.get_customer_phone(orderNum)
     if original_customer_phone == firebase_customer_phone:
         test_outcome = ("get_customer_phone_test() PASSED, expected: " + str(original_customer_phone) +
                         " , actual: " + str(firebase_customer_phone))
@@ -236,7 +216,7 @@ def get_customer_phone_test():
         print(test_outcome)
         senseHatController.sense_led("green", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").set("True")
+        db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").set("+16137075758")
 
     else:
         test_outcome = ("get_customer_phone_test() FAILED, expected: " + str(original_customer_phone) +
@@ -245,7 +225,7 @@ def get_customer_phone_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").set("True")
+        db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").set("+16137075758")
 
 def get_employee_name_test():
     original_employee_name='Martin'
@@ -259,7 +239,7 @@ def get_employee_name_test():
         print(test_outcome)
         senseHatController.sense_led("green", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("name").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("name").set('Martin')
 
     else:
         test_outcome = ("get_employee_name_test() FAILED, expected: " + str(original_employee_name) +
@@ -268,7 +248,7 @@ def get_employee_name_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("name").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("name").set('Martin')
 
 # Test decrementing sauce the sauce level when dispensed. I will firstly overwrite the sauce level in Firebase with
 #  5, then I will invoke sauceService.update_sauce_level(1) to decrement it by 1, then I will compare the expected
@@ -285,7 +265,7 @@ def get_employee_email_test():
         print(test_outcome)
         senseHatController.sense_led("green", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("email").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("email").set('Martin123@gmail.com')
 
     else:
         test_outcome = ("get_employee_email_test() FAILED, expected: " + str(original_employee_email) +
@@ -294,7 +274,7 @@ def get_employee_email_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("email").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("email").set('Martin123@gmail.com')
 
 
 # Test retrieving employee phone number from Firebase. First I will overwrite the phone number in Firebase with
@@ -311,7 +291,7 @@ def get_employee_phone_test():
         print(test_outcome)
         senseHatController.sense_led("green", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("phone").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("phone").set('+16137075758')
 
     else:
         test_outcome = ("get_employee_phone_test() FAILED, expected: " + str(original_employee_phone) +
@@ -320,4 +300,4 @@ def get_employee_phone_test():
         print(test_outcome)
         senseHatController.sense_led("red", 2)
         senseHatController.sense_message(test_outcome)
-        db.child("Employee").child("Employees").child("Employee1").child("phone").set("True")
+        db.child("Employee").child("Employees").child("Employee1").child("phone").set('+16137075758')

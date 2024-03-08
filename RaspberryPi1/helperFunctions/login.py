@@ -29,7 +29,7 @@ def get_customer_email(orderNum="Order1"):
     return customer_email
 
 # Retrieve topping level stored in Firebase
-def get_customer_phone():
+def get_customer_phone(orderNum="Order1"):
     customer_phone = (
         db.child("Customer").child(orderNum).child("CustomerInfo").child("phone").get()).val()
     return customer_phone
