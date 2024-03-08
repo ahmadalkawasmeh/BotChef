@@ -68,7 +68,7 @@ def update_sauce_level(n=1):
 
 # Retrieve the employee's phone number from the Firebase
 def get_employee_phone(employeeNum="Employee1"):
-    return (db.child("Employee").child("Employees").child(employeeNum).child("phone")).val()
+    return (db.child("Employee").child("Employees").child(employeeNum).child("phone").get()).val()
 
 
 # Notify employee when sauce level is low

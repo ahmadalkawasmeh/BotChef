@@ -9,7 +9,7 @@ sense = SenseHat()
 def sense_led(color, t=5):
     if color == "red":
         # Set all pixels to red
-        sense.clear((255, 0, 0))
+        sense.clear((127, 0, 0))
 
         # Wait for 5 seconds
         sleep(t)
@@ -19,7 +19,7 @@ def sense_led(color, t=5):
 
     if color == "green":
         # Set all pixels to green
-        sense.clear((0, 255, 0))
+        sense.clear((0, 127, 0))
 
         # Wait for t seconds
         sleep(t)
@@ -28,7 +28,7 @@ def sense_led(color, t=5):
         sense.clear()
 
 
-def sense_message(msg="a", text_color=(255, 255, 255), bg_color=(0, 0, 0)):
+def sense_message(msg="a", text_color=(127, 127, 127), bg_color=(0, 0, 0)):
     # Set background color
     sense.clear(bg_color)
 
