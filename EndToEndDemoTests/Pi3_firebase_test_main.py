@@ -2,7 +2,6 @@ import communicationTest
 
 
 # Runs all the firebase tests in communicationTests.py
-# IMPORTANT: Ensure you run the sav_and_get_ip_test() first to make your Pi's IP Address accessible to other members
 def main():
     communicationTest.save_and_get_ip_test()
     communicationTest.get_ordered_sauce_test()

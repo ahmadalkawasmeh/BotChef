@@ -60,7 +60,6 @@ def send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgB
 
 # Test receiving a message
 def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=53000):
-    # ToDo
     host = hostIp
     port = portNum
 
