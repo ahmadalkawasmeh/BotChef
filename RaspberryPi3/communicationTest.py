@@ -1,3 +1,4 @@
+#!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
 from testsHelperFunctions import senseHatController
 from helperFunctions import messageService, IPService, sauceService
 import json
@@ -24,6 +25,7 @@ db = firebase.database()
 def send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgBody="3/2"):
 
     received_reply = messageService.send_message_then_receive_reply(piNum, msgType, msgBody)
+
     if "TestACK" in received_reply:
         result_calculation = received_reply["TestACK"]["message"]
         actual_result = float(result_calculation)
