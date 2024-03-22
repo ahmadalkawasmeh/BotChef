@@ -1,3 +1,5 @@
+#!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
+
 from helperFunctions import IPService, messageService, sauceService
 
 
@@ -5,7 +7,7 @@ from helperFunctions import IPService, messageService, sauceService
 def main():
 
     # Get my own IP address, I'm using Pi#3
-    pi3_ip = IPService.get_local_ip_address(1)
+    pi3_ip = IPService.get_local_ip_address(0)
     # Upload my Pi IP address to Firebase
     IPService.save_ip(pi3_ip)
 

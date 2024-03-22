@@ -1,3 +1,4 @@
+#!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
 import communicationTest
 
 
@@ -10,7 +11,7 @@ import communicationTest
 # type 'source venv/bin/activate' in the terminal to activate
 
 def main():
-    communicationTest.send_message_then_receive_reply_test()
+    communicationTest.send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgBody="3/4")
 
 
 if __name__ == "__main__":

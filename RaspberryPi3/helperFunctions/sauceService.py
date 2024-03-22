@@ -1,7 +1,10 @@
+#!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
 import pyrebase
-
+import RPi.GPIO as GPIO
+from time import time, sleep
 from . import messageService
 
+GPIO.setmode(GPIO.BCM)
 # Firebase connection parameters
 config = {
     "apiKey": "AIzaSyC3QNNa52-lh5JimhS0zgC0sA_z6XUq3JY",
@@ -24,24 +27,45 @@ def get_ordered_sauce(orderNum="Order1"):
 
 # Dispense sauce by activating sauce pump
 def dispense_sauce(sauceVal):
-    # ToDo should call sauce_dispenser() to pump sauce
-    # ToDo should call sandwich_arrived() to know if sandwich arrived at sauce station yet
-    if sauceVal == "True":
-        print("Sauce has been dispensed")
-    if sauceVal == "False":
-        print("Customer order excluded sauce, no sauce will be dispensed")
+    if sandwich_arrived():
+        if sauceVal == "True":
+            sauce_dispenser()
+            print("Sauce has been dispensed")
+        elif sauceVal == "False":
+            print("Customer order excluded sauce, no sauce will be dispensed")
+
+    else:
+        return None
 
 
-# Control sauce pump motor
-def sauce_dispenser():
-    # ToDo interface sauce pump motor
-    return None
+# Activate sauce pump motor for n seconds, default=2
+def sauce_dispenser(n=2):
+    # Initialize Sauce Pump Relay
+    GPIO.setmode(GPIO.BCM)
+    PUMP = 21
+    GPIO.setup(PUMP, GPIO.OUT)
+
+    GPIO.output(PUMP, True)
+    sleep(2)
+    GPIO.output(PUMP, False)
+    GPIO.cleanup()
+
+    return True
 
 
 # Implement the IR proximity sensor
 def sandwich_arrived():
-    # ToDo interface IR proximity sensor
-    return None
+    # Initializing IR Proximity Sensor
+    GPIO.setmode(GPIO.BCM)
+    PROX = 17
+    GPIO.setup(PROX, GPIO.IN)
+
+    if GPIO.input(PROX) == GPIO.LOW:
+        GPIO.cleanup()
+
+        return True
+    else:
+        return False
 
 
 # Retrieve sauce level stored in Firebase
@@ -52,8 +76,33 @@ def get_db_sauce_level():
 
 # Check the sauce level in the sauce reservoir
 def get_res_sauce_level():
-    # ToDo interface ultrasonic sensor
-    return None
+    # Initializing Ultrasonic Sensor
+    GPIO.setmode(GPIO.BCM)
+    # Define sensor GPIO pins
+    TRIG = 12
+    ECHO = 27
+    GPIO.setup(TRIG, GPIO.OUT)
+    GPIO.setup(ECHO, GPIO.IN)
+
+    GPIO.output(TRIG, True)
+    sleep(0.00001)
+    GPIO.output(TRIG, False)
+
+    pulse_start = time()
+    pulse_end = time()
+
+    while GPIO.input(ECHO) == 0:
+        pulse_start = time()
+
+    while GPIO.input(ECHO) == 1:
+        pulse_end = time()
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150  # Speed of sound = 34300 cm/s
+
+    distance = round(distance, 2)
+    GPIO.cleanup()
+    return distance
 
 
 # Decrement sauce level in Firebase
