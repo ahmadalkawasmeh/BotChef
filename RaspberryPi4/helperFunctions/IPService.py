@@ -15,7 +15,7 @@ db = firebase.database()
 
 
 # Retrieve my Pi's local IP address
-def get_local_ip_address(n=1):
+def get_local_ip_address(n=0):
     try:
         my_ip_address = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
         my_string_ip_address = f'"{my_ip_address}"'

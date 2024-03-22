@@ -32,10 +32,10 @@ def parse_message(msg_code, topping_level=2, msgType="TestCommunication", msgBod
 
 # Initialize environment to send a TCP message
 def send_message_then_receive_reply(piNum, msgType, msgBody):
-    #host = IPService.get_ip(piNum)
-    host = '192.168.2.76'
-    #port = IPService.get_port(piNum)
-    port = 54000
+    host = IPService.get_ip(piNum)
+    #host = '172.17.57.148'
+    port = IPService.get_port(piNum)
+    #port = 54000
 
     # Use these values instead if you're running the independent test
     # host = <your Pi's local ip address>
