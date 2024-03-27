@@ -10,11 +10,34 @@ from . import IPService
 from . import sauceService
 
 
-# Parse incoming messages and form messages to send
-def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody="Reply with Hi Pi3"):
+# noinspection PyPep8
+def parse_message(
+    msg_code,
+    sauce_level=2,
+    msgType="TestCommunication",
+    msgBody="Reply with Hi Pi3",
+):
+    # noinspection PyPep8
+    """
+    Parse incoming messages and form messages to send based on the provided msg_code.
+
+    Args:
+        msg_code (int): The code representing the type of message to parse.
+        sauce_level (int, optional): The current sauce level. Defaults to 2.
+        msgType (str, optional): The type of message to form. Defaults to "TestCommunication".
+        msgBody (str, optional): The body of the message to form. Defaults to "Reply with Hi Pi3".
+
+    Returns:
+        str or dict or None: The parsed message or acknowledgment response, or None if the msg_code is invalid.
+    """
+
     # From low sauce sms message to send to employee
     if msg_code == 0:
-        low_sauce_message = 'Sauce level is critical! Current level is ' + str(sauce_level) + ', please refill.'
+        low_sauce_message = (
+            "Sauce level is critical! Current level is "
+            + str(sauce_level)
+            + ", please refill."
+        )
         return low_sauce_message
 
     # Form ACK JSON reply to Pi2 after sauce dispensed
@@ -31,8 +54,20 @@ def parse_message(msg_code, sauce_level=2, msgType="TestCommunication", msgBody=
         return None
 
 
-# Initialize environment to send a TCP message
+# noinspection PyPep8
 def send_message_then_receive_reply(piNum, msgType, msgBody):
+    """
+    Initialize environment to send a TCP message and receive a reply.
+
+    Args:
+        piNum (str): The number of the Pi to connect to.
+        msgType (str): The type of message to send.
+        msgBody (str): The body of the message to send.
+
+    Returns:
+        dict or None: The received acknowledgment response or None if no reply received or an error occurred.
+    """
+
     host = IPService.get_ip(piNum)
     port = IPService.get_port(piNum)
 
@@ -57,7 +92,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         message_str = json.dumps(message_json)
 
         # Send the JSON message to the server
-        pi3_socket.sendall(message_str.encode('utf-8'))
+        pi3_socket.sendall(message_str.encode("utf-8"))
 
         # Get ACK reply from the receiver
         raw_reply = pi3_socket.recv(1024)
@@ -67,13 +102,17 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
             print("No reply received")
             return None
 
-        decoded_reply = json.loads(raw_reply.decode('utf-8'))
+        decoded_reply = json.loads(raw_reply.decode("utf-8"))
         print("Acknowledgment from " + piNum + " received with contents: ")
         print(decoded_reply)
 
     # If piNum takes too long to respond
     except socket.timeout:
-        print("Socket timout occurred, " + piNum + " didn't reply within 15 seconds")
+        print(
+            "Socket timout occurred, "
+            + piNum
+            + " didn't reply within 15 seconds"
+        )
 
     # Print any socket errors that occur
     except socket.error as e:
@@ -84,11 +123,22 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         pi3_socket.close()
 
     # Return None if there was an error or timeout
-    return decoded_reply if 'decoded_reply' in locals() else None
+    return decoded_reply if "decoded_reply" in locals() else None
 
 
-# Initialize environment to receive TCP messages from Pi2
-def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
+# noinspection DuplicatedCode,PyPep8
+def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
+    """
+    Initialize environment to receive TCP messages from Pi2 and send an acknowledgment response.
+
+    Args:
+        hostIp (str, optional): The IP address to bind the socket to. Defaults to '0.0.0.0'.
+        portNum (int, optional): The port number to listen on. Defaults to 53000.
+
+    Returns:
+        dict or None: The received message or None if an error occurred.
+    """
+
     host = hostIp
     port = portNum
 
@@ -112,7 +162,7 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
             print("No data received")
             return None
 
-        received_msg = json.loads(data.decode('utf-8'))
+        received_msg = json.loads(data.decode("utf-8"))
         print("Received JSON message: ")
         print(received_msg)
 
@@ -127,11 +177,17 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
             if ordered_sauce == "True":
                 # Check if sauce level is low before dispensing
                 sauce_level = sauceService.get_db_sauce_level()
-                # If sauce level has reached zero, notify employee and wait for refill before continuing
+                # If sauce level has reached zero, notify employee and wait for
+                # refill before continuing
                 if sauce_level <= 0:
-                    print("Sauce has ran out, notifying and waiting for employee to refill")
-                    sauceService.notify_employee()  # ToDo get a specific employee number to pass on
-                    sleep(5)  # ToDo better waiting mechanism
+                    print(
+                        "Sauce has ran out, notifying and waiting for "
+                        "employee to refill"
+                    )
+                    sauceService.notify_employee()
+                    # ToDo get a specific employee number to pass on
+                    sleep(5)
+                    # ToDo better waiting mechanism
                     sauceService.dispense_sauce(ordered_sauce)
                     sauceService.update_sauce_level()
                 else:
@@ -143,7 +199,7 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
             # Send an acknowledgment
             response_json = parse_message(1)
             response_data = json.dumps(response_json)
-            pi2_socket.sendall(response_data.encode('utf-8'))
+            pi2_socket.sendall(response_data.encode("utf-8"))
         else:
             print("Invalid JSON message structure received")
 
@@ -156,14 +212,29 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
         pi3_socket.close()
         pi2_socket.close()
 
-    return received_msg if 'received_msg' in locals() else None
+    return received_msg if "received_msg" in locals() else None
 
 
-# Send an SMS notification to employee
+# noinspection PyPep8
 def send_sms_message(msg_body, employee_phone):
+    """
+    Send an SMS notification to an employee using Twilio.
+
+    Args:
+        msg_body (str): The body of the SMS message to send.
+        employee_phone (str): The phone number of the employee to whom the SMS will be sent.
+
+    Returns:
+        None
+
+    Raises:
+        TwilioRestException: If an error occurs during the Twilio API call.
+    """
+
     # Setting Twilio API parameters and initializing a client
-    account_sid = 'AC8569b737cec74fdcbd0e6ede28ba4bc9'
-    auth_token = 'aa56f3a8083e9577ca17bbef42eb6e09'
+    # noinspection SpellCheckingInspection
+    account_sid = "AC8569b737cec74fdcbd0e6ede28ba4bc9"
+    auth_token = "aa56f3a8083e9577ca17bbef42eb6e09"
 
     try:
         # Initializing Twilio client
@@ -171,9 +242,7 @@ def send_sms_message(msg_body, employee_phone):
 
         # Sending an SMS message to employee
         message = client.messages.create(
-            from_='+15177438114',
-            body=msg_body,
-            to=str(employee_phone)
+            from_="+15177438114", body=msg_body, to=str(employee_phone)
         )
 
         print(f"SMS sent successfully. SID: {message.sid}")
