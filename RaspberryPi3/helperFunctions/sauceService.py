@@ -1,7 +1,9 @@
 #!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
-import pyrebase
-import RPi.GPIO as GPIO
 from time import time, sleep
+
+import RPi.GPIO as GPIO
+import pyrebase
+
 from . import messageService
 
 GPIO.setmode(GPIO.BCM)
@@ -10,7 +12,7 @@ config = {
     "apiKey": "AIzaSyC3QNNa52-lh5JimhS0zgC0sA_z6XUq3JY",
     "authDomain": "sysc3010-f898a.firebaseapp.com",
     "databaseURL": "https://sysc3010-f898a-default-rtdb.firebaseio.com/",
-    "storageBucket": "sysc3010-f898a.appspot.com"
+    "storageBucket": "sysc3010-f898a.appspot.com",
 }
 
 # Connecting to Firebase
@@ -21,12 +23,19 @@ db = firebase.database()
 # Check the order info in Firebase and retrieve the customer's choice for sauce
 def get_ordered_sauce(orderNum="Order1"):
     sauce_choice = (
-        db.child("Customer").child(orderNum).child("OrderInfo").child("Ingredients").child("sauce").get()).val()
+        db.child("Customer")
+        .child(orderNum)
+        .child("OrderInfo")
+        .child("Ingredients")
+        .child("sauce")
+        .get()
+    ).val()
     return sauce_choice
 
 
 # Dispense sauce by activating sauce pump
 def dispense_sauce(sauceVal):
+    sleep(5)
     if sandwich_arrived():
         if sauceVal == "True":
             sauce_dispenser()
@@ -46,7 +55,7 @@ def sauce_dispenser(n=2):
     GPIO.setup(PUMP, GPIO.OUT)
 
     GPIO.output(PUMP, True)
-    sleep(2)
+    sleep(n)
     GPIO.output(PUMP, False)
     GPIO.cleanup()
 
@@ -70,12 +79,14 @@ def sandwich_arrived():
 
 # Retrieve sauce level stored in Firebase
 def get_db_sauce_level():
-    sauce_level = (db.child("Employee").child("IngredientsLevel").child("sauce").get()).val()
+    sauce_level = (
+        db.child("Employee").child("IngredientsLevel").child("sauce").get()
+    ).val()
     return sauce_level
 
 
 # Check the sauce level in the sauce reservoir
-def get_res_sauce_level():
+def get_sauce_sensor_reading():
     # Initializing Ultrasonic Sensor
     GPIO.setmode(GPIO.BCM)
     # Define sensor GPIO pins
@@ -105,19 +116,31 @@ def get_res_sauce_level():
     return distance
 
 
-# Decrement sauce level in Firebase
-def update_sauce_level(n=1):
-    # ToDo update firebase with reservoir sauce level
-    # Retrieve current sauce level and decrement
-    current_sauce_level = (db.child("Employee").child("IngredientsLevel").child("sauce").get()).val()
-    new_sauce_level = current_sauce_level - n
+def get_sauce_reservoir_level():
+    sensor_reading = get_sauce_sensor_reading()
+    RESERVOIR_HEIGHT = 17
+    reservoir_level = RESERVOIR_HEIGHT - sensor_reading
+    return reservoir_level
+
+
+# Update sauce level in Firebase
+def update_sauce_level():
+    new_sauce_level = get_sauce_reservoir_level()
     # Overwrite sauce level in Firebase with updated level
-    db.child("Employee").child("IngredientsLevel").child("sauce").set(new_sauce_level)
+    db.child("Employee").child("IngredientsLevel").child("sauce").set(
+        new_sauce_level
+    )
 
 
 # Retrieve the employee's phone number from the Firebase
 def get_employee_phone(employeeNum="Employee1"):
-    return (db.child("Employee").child("Employees").child(employeeNum).child("phone").get()).val()
+    return (
+        db.child("Employee")
+        .child("Employees")
+        .child(employeeNum)
+        .child("phone")
+        .get()
+    ).val()
 
 
 # Notify employee when sauce level is low
@@ -126,12 +149,19 @@ def notify_employee(employeeNum="Employee1"):
     employee_phone = get_employee_phone(employeeNum)
     msg_body = messageService.parse_message(0, current_level)
     messageService.send_sms_message(msg_body, employee_phone)
-    print("Low sauce notification sent to : " + str(employeeNum) + " , and the phone number is " + str(employee_phone))
+    print(
+        "Low sauce notification sent to : "
+        + str(employeeNum)
+        + " , and the phone number is "
+        + str(employee_phone)
+    )
     sauce_refill()
 
 
 # Used to refill the sauce reservoir
-# ToDo change when reservoir sensor is implemented
-def sauce_refill(fullLevel=10):
-    db.child("Employee").child("IngredientsLevel").child("sauce").set(fullLevel)
-    print("Sauce level has been replenished to : " + str(fullLevel))
+def sauce_refill(n=8):
+    update_sauce_level()
+    print(
+        "Sauce level has been replenished to : "
+        + str(get_sauce_reservoir_level())
+    )

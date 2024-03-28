@@ -1,6 +1,6 @@
 #!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
 
-from helperFunctions import IPService, messageService, sauceService
+from helperFunctions import IPService, sauceService, messageService
 
 
 # Main program to run Pi#3 and delegate tasks to helper functions
@@ -18,4 +18,11 @@ def main():
     # Retrieve Pi#4 IP addresses
     pi4_ip = IPService.get_ip("Pi4")
 
+    # Initialize sauce level in firebase
+    sauceService.update_sauce_level()
 
+    messageService.receive_message_then_reply()
+
+
+if __name__ == "__main__":
+    main()

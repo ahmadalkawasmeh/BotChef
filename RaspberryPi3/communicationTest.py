@@ -1,10 +1,11 @@
 #!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
-from testsHelperFunctions import senseHatController
-from helperFunctions import messageService, IPService, sauceService
 import json
 import socket
+
 import pyrebase
 
+from helperFunctions import messageService, IPService, sauceService
+from testsHelperFunctions import senseHatController
 
 # Firebase connection parameters
 config = {

@@ -1,6 +1,7 @@
 #!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
 
 import unittest
+
 from helperFunctions import messageService, IPService, sauceService
 from testsHelperFunctions import unitHelper
 
@@ -60,7 +61,7 @@ class TestPi3(unittest.TestCase):
 
     def test_ultrasonic_sensor(self):
         unitHelper.indicate_hardware_tst_ended()
-        self.assertTrue(12.5 < sauceService.get_res_sauce_level() < 16.5)
+        self.assertTrue(12.5 < sauceService.get_sauce_sensor_reading() < 16.5)
 
 
 if __name__ == '__main__':

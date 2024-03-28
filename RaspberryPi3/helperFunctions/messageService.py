@@ -10,7 +10,6 @@ from . import IPService
 from . import sauceService
 
 
-# noinspection PyPep8
 def parse_message(
     msg_code,
     sauce_level=2,
@@ -54,7 +53,6 @@ def parse_message(
         return None
 
 
-# noinspection PyPep8
 def send_message_then_receive_reply(piNum, msgType, msgBody):
     """
     Initialize environment to send a TCP message and receive a reply.
@@ -126,7 +124,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
     return decoded_reply if "decoded_reply" in locals() else None
 
 
-# noinspection DuplicatedCode,PyPep8
+# noinspection DuplicatedCode
 def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
     """
     Initialize environment to receive TCP messages from Pi2 and send an acknowledgment response.
@@ -177,18 +175,17 @@ def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
             if ordered_sauce == "True":
                 # Check if sauce level is low before dispensing
                 sauce_level = sauceService.get_db_sauce_level()
-                # If sauce level has reached zero, notify employee and wait for
+                # If sauce level is low, notify employee and wait for
                 # refill before continuing
-                if sauce_level <= 0:
+                if sauce_level <= 5:
                     print(
                         "Sauce has ran out, notifying and waiting for "
                         "employee to refill"
                     )
                     sauceService.notify_employee()
-                    # ToDo get a specific employee number to pass on
-                    sleep(5)
-                    # ToDo better waiting mechanism
+                    sleep(8)
                     sauceService.dispense_sauce(ordered_sauce)
+                    sleep(1)
                     sauceService.update_sauce_level()
                 else:
                     sauceService.dispense_sauce(ordered_sauce)
@@ -215,7 +212,6 @@ def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
     return received_msg if "received_msg" in locals() else None
 
 
-# noinspection PyPep8
 def send_sms_message(msg_body, employee_phone):
     """
     Send an SMS notification to an employee using Twilio.
