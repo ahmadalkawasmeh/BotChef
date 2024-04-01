@@ -1,0 +1,14 @@
+from .EndToEndDemoTests import communicationTest
+
+
+# Runs the TCP test in communicationTests.py for sending a message then
+# receiving a reply from receiver
+def main():
+    # Sending "3/4" to Pi4
+    communicationTest.send_message_then_receive_reply_test(
+        piNum="Pi4", msgType="TestSignal", msgBody="3/4"
+    )
+
+
+if __name__ == "__main__":
+    main()
