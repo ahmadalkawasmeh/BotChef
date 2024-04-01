@@ -56,7 +56,7 @@ def get_db_topping_level():
     return topping_level
 
 def get_topping_sensor_reading():
-    return u.distance
+    return round(u.distance * 100), 2
 
 
     
