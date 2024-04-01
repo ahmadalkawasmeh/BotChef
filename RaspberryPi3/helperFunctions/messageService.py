@@ -15,22 +15,26 @@ def parse_message(
     sauce_level=2,
     msgType="TestCommunication",
     msgBody="Reply with Hi Pi3",
-):
-    # noinspection PyPep8
+) -> str | dict | None:
     """
-    Parse incoming messages and form messages to send based on the provided msg_code.
+    Parse incoming messages and form messages to send based on the provided
+    msg_code.
 
     Args:
         msg_code (int): The code representing the type of message to parse.
         sauce_level (int, optional): The current sauce level. Defaults to 2.
-        msgType (str, optional): The type of message to form. Defaults to "TestCommunication".
-        msgBody (str, optional): The body of the message to form. Defaults to "Reply with Hi Pi3".
+        msgType (str, optional): The type of message to form. Defaults
+        to "TestCommunication".
+        msgBody (str, optional): The body of the message to form. Defaults
+        to "Reply with Hi Pi3".
 
     Returns:
-        str or dict or None: The parsed message or acknowledgment response, or None if the msg_code is invalid.
+        str: The sms message to send employee.
+        dict: TCP message to send, or TCP ACK message.
+        None: If the msg_code is invalid.
     """
 
-    # From low sauce sms message to send to employee
+    # Form low sauce sms message to send to employee
     if msg_code == 0:
         low_sauce_message = (
             "Sauce level is critical! Current level is "
@@ -53,7 +57,7 @@ def parse_message(
         return None
 
 
-def send_message_then_receive_reply(piNum, msgType, msgBody):
+def send_message_then_receive_reply(piNum, msgType, msgBody) -> dict | None:
     """
     Initialize environment to send a TCP message and receive a reply.
 
@@ -63,15 +67,12 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         msgBody (str): The body of the message to send.
 
     Returns:
-        dict or None: The received acknowledgment response or None if no reply received or an error occurred.
+        dict: The received acknowledgment response.
+        None: If no reply received or an error occurred.
     """
 
     host = IPService.get_ip(piNum)
     port = IPService.get_port(piNum)
-
-    # Use these values instead if you're running the independent test
-    # host = <your Pi's local ip address>
-    # port = <your Pi's port number>
 
     timeout_seconds = 15
 
@@ -125,16 +126,20 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
 
 
 # noinspection DuplicatedCode
-def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
+def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000) -> dict | None:
     """
-    Initialize environment to receive TCP messages from Pi2 and send an acknowledgment response.
+    Initialize environment to receive TCP messages from Pi2 and send an
+    acknowledgment response.
 
     Args:
-        hostIp (str, optional): The IP address to bind the socket to. Defaults to '0.0.0.0'.
-        portNum (int, optional): The port number to listen on. Defaults to 53000.
+        hostIp (str, optional): The IP address to bind the socket to. Defaults
+        to '0.0.0.0'.
+        portNum (int, optional): The port number to listen on. Defaults
+        to 53000.
 
     Returns:
-        dict or None: The received message or None if an error occurred.
+        dict: The received message
+        None: If an error occurred.
     """
 
     host = hostIp
@@ -212,13 +217,14 @@ def receive_message_then_reply(hostIp="0.0.0.0", portNum=53000):
     return received_msg if "received_msg" in locals() else None
 
 
-def send_sms_message(msg_body, employee_phone):
+def send_sms_message(msg_body, employee_phone) -> None:
     """
     Send an SMS notification to an employee using Twilio.
 
     Args:
         msg_body (str): The body of the SMS message to send.
-        employee_phone (str): The phone number of the employee to whom the SMS will be sent.
+        employee_phone (str): The phone number of the employee to whom the SMS
+        will be sent.
 
     Returns:
         None
