@@ -14,6 +14,9 @@ def main():
     pi2_ip = IPService.get_ip("Pi2")
     # Retrieve Pi#3 IP addresses
     pi3_ip = IPService.get_ip("Pi3")
+
+    toppingService.update_topping_level()
+    messageService.receive_message_then_reply()
     
 if __name__ == "__main__":
     main()
