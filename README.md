@@ -5,6 +5,7 @@
 ### TA: Ben Earle
 
 ---
+![image](https://github.com/SYSC3010-W24/sysc3010-project-l2-g12/assets/113314427/8a14ee72-743e-46a1-a381-954ddfe9fc0b)
 
 **Project Summary**
 
@@ -45,3 +46,5 @@ The system will then operate as follows:
 * Lastly, the sandwich will be moved back to the first station for the second slice of bread dispensing.
 
 While the system runs, monitor the terminal of each subsystem to observe messages passing between nodes. Lack of messages indicates a communication error. Additionally, ensure all unit tests in each subsystem pass successfully (see Docstring of functions that fail to pass the test, if any, for more information).
+
+[**See the system in action here!**](https://youtu.be/1JV6p0qNxS4)
