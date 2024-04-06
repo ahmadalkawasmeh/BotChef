@@ -2,8 +2,8 @@
 
 import unittest
 
-from helperFunctions import messageService, IPService, sauceService
-from testsHelperFunctions import unitHelper
+from ...helperFunctions import messageService, IPService, sauceService
+from ...testsHelperFunctions import unitHelper
 
 
 class TestPi3(unittest.TestCase):

@@ -1,10 +1,19 @@
 #!/home/koko/Documents/sysc3010-project-l2-g12/RaspberryPi3/venv/bin/python
-from time import time, sleep
+"""
+Module for controlling hardware testing functions using GPIO on Raspberry Pi.
+"""
 
+from time import time, sleep
 import RPi.GPIO as GPIO
 
 
 def sensor_wait(n=6):
+    """
+    Cycle an LED for a specified duration.
+
+    Parameters: n (int): The duration of the LED cycling in seconds. Default
+    is 6 seconds.
+    """
     # Set up GPIO using BCM numbering
     GPIO.setmode(GPIO.BCM)
 
@@ -31,6 +40,9 @@ def sensor_wait(n=6):
 
 
 def indicate_hardware_tst_started():
+    """
+    Indicate the start of hardware testing by turning on a green LED.
+    """
     # Set up GPIO using BCM numbering
     GPIO.setmode(GPIO.BCM)
 
@@ -42,6 +54,10 @@ def indicate_hardware_tst_started():
 
 
 def indicate_hardware_tst_ended():
+    """
+    Indicate the end of hardware testing by turning off a green LED and
+    cleaning up GPIO.
+    """
     # Set up GPIO using BCM numbering
     GPIO.setmode(GPIO.BCM)
 
