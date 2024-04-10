@@ -1,4 +1,5 @@
 #client (send)
+#Test of sending a TCP message to Pi3 for the end to end demo
 
 import socket
 import IPService
