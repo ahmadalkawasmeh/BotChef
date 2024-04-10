@@ -1,3 +1,6 @@
+# Author: Zach Gregory
+# Run this program to begin operation of RPi #2
+
 #python3 -m venv .venv
 #source .venv/bin/activate
 #python3 /home/zach/Desktop/main_pi2.py
