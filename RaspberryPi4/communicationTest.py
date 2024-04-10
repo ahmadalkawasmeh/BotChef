@@ -18,9 +18,9 @@ firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
 
-# Test TCP communication between Pi3 and Pi2, Pi3 sends a message to Pi2 containing a simple math calculation 3/2,
-#  Pi2 performs the calculation and should reply with a message containing 1.5
-#   Pi3 then checks the expected result against the actual received result and reports if the test Passes or Failed
+# Test TCP communication between Pi4 and Pi2, Pi4 sends a message to Pi2 containing a simple math calculation 4/5,
+#  Pi2 performs the calculation and should reply with a message containing 0.8
+#   Pi4 then checks the expected result against the actual received result and reports if the test Passes or Failed
 def send_message_then_receive_reply_test(piNum="Pi2", msgType="TestSignal", msgBody="4/5"):
 
     received_reply = messageService.send_message_then_receive_reply(piNum, msgType, msgBody)
@@ -122,7 +122,7 @@ def receive_message_then_reply_test(hostIp='0.0.0.0', portNum=54000):
 def save_and_get_ip_test():
     piNum = "Pi4"
     # Get my actual IP
-    original_ip = IPService.get_local_ip_address()
+    original_ip = IPService.get_local_ip_address(0)
     # Upload my IP to Firebase
     IPService.save_ip(original_ip)
     # Retrieve the IP address from Firebase

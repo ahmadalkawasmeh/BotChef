@@ -1,6 +1,13 @@
 import pyrebase
+from time import sleep
+from gpiozero import Button, Servo, DistanceSensor
+from gpiozero.pins.pigpio import PiGPIOFactory
+from . import messageService
 
-from RaspberryPi4.helperFunctions import messageService
+gpioFac = PiGPIOFactory()
+u = DistanceSensor(echo = 20, trigger = 18, threshold_distance = 0.3, max_distance = 2)
+s = Servo(12, pin_factory=gpioFac)
+b = Button(16, pin_factory=gpioFac)
 
 # Firebase connection parameters
 config = {
@@ -26,21 +33,43 @@ def get_ordered_topping(orderNum="Order1"):
 def dispense_topping(toppingVal):
     if toppingVal == "True":
         print("Topping has been dispensed")
+        topping_dispenser()
+        return True
     if toppingVal == "False":
         print("Customer order excluded toppings, no toppings will be dispensed")
+        return False
+    else:
+        return None
+    
+#Set angle of servo motor in degrees    
+def set_angle(angle):
+    mapped_angle = (angle / 180) * 2 - 1
+    s.value = mapped_angle
+    sleep(0.5)
+    
+#Dispense toppings onto sandwich by opening servo
+def topping_dispenser():
+    set_angle(50)
+    set_angle(160)    
+    return True
 
+#Retrieve the current toppings level from the database
+def get_db_topping_level():
+    topping_level = (db.child("Employee").child("IngredientsLevel").child("topping").get()).val()
+    return topping_level
+
+#Read the current topping level measuremnt 
+def get_topping_sensor_reading():
+    return round(u.distance * 100), 2
 
 # Retrieve topping level stored in Firebase
 def check_topping_level():
     topping_level = (db.child("Employee").child("IngredientsLevel").child("topping").get()).val()
     return topping_level
 
-
 # Decrement topping level in Firebase
 def update_topping_level(n=1):
-    # Retrieve current topping level and decrement
-    current_topping_level = (db.child("Employee").child("IngredientsLevel").child("topping").get()).val()
-    new_topping_level = current_topping_level - n
+    new_topping_level = get_topping_sensor_reading()
     # Overwrite topping level in Firebase with updated level
     db.child("Employee").child("IngredientsLevel").child("topping").set(new_topping_level)
 

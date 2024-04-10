@@ -2,11 +2,11 @@ import json
 import socket
 from time import sleep
 
-from twilio.base.exceptions import TwilioRestException
-from twilio.rest import Client
+# from twilio.base.exceptions import TwilioRestException
+# from twilio.rest import Client
 
 from . import IPService
-from . import sauceService
+from . import toppingService
 
 
 # Parse incoming messages and form messages to send
@@ -33,7 +33,9 @@ def parse_message(msg_code, topping_level=2, msgType="TestCommunication", msgBod
 # Initialize environment to send a TCP message
 def send_message_then_receive_reply(piNum, msgType, msgBody):
     host = IPService.get_ip(piNum)
+    #host = '172.17.57.148'
     port = IPService.get_port(piNum)
+    #port = 54000
 
     # Use these values instead if you're running the independent test
     # host = <your Pi's local ip address>
@@ -46,8 +48,8 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
     decoded_reply = None  # Initialize the variable
 
     try:
-        pi3_socket.settimeout(timeout_seconds)  # Set socket timeout
-        pi3_socket.connect((host, port))
+        pi4_socket.settimeout(timeout_seconds)  # Set socket timeout
+        pi4_socket.connect((host, port))
 
         # Create the JSON message to send in the form of a dictionary
         message_json = parse_message(2, msgType=msgType, msgBody=msgBody)
@@ -59,7 +61,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
         pi4_socket.sendall(message_str.encode('utf-8'))
 
         # Get ACK reply from the receiver
-        raw_reply = pi3_socket.recv(1024)
+        raw_reply = pi4_socket.recv(1024)
 
         # Handle partial or fragmented data
         if not raw_reply:
@@ -87,7 +89,7 @@ def send_message_then_receive_reply(piNum, msgType, msgBody):
 
 
 # Initialize environment to receive TCP messages from Pi2
-def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
+def receive_message_then_reply(hostIp='0.0.0.0', portNum=54000):
     host = hostIp
     port = portNum
 
@@ -96,7 +98,7 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
     pi4_socket.bind((host, port))
     pi4_socket.listen(1)
 
-    print(f"Pi3 listening on {host}:{port}")
+    print(f"Pi4 listening on {host}:{port}")
 
     # Create a new socket for the incoming connection from Pi2
     pi2_socket, pi2_address = pi4_socket.accept()
@@ -152,30 +154,7 @@ def receive_message_then_reply(hostIp='0.0.0.0', portNum=53000):
 
     finally:
         # Close the sockets
-        pi3_socket.close()
+        pi4_socket.close()
         pi2_socket.close()
 
     return received_msg if 'received_msg' in locals() else None
-
-
-# Send an SMS notification to employee
-def send_sms_message(msg_body, employee_phone):
-    # Setting Twilio API parameters and initializing a client
-    account_sid = 'AC8569b737cec74fdcbd0e6ede28ba4bc9'
-    auth_token = 'aa56f3a8083e9577ca17bbef42eb6e09'
-
-    try:
-        # Initializing Twilio client
-        client = Client(account_sid, auth_token)
-
-        # Sending an SMS message to employee
-        message = client.messages.create(
-            from_='+15177438114',
-            body=msg_body,
-            to=str(employee_phone)
-        )
-
-        print(f"SMS sent successfully. SID: {message.sid}")
-
-    except TwilioRestException as e:
-        print(f"Twilio error message: {e}")
