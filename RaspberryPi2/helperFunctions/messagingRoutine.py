@@ -1,5 +1,5 @@
-# Author: Ahmed
-# Modified by: Zach
+# Author: Zach
+# Functions originally written by Ahmed then adapted
 # This program deals with TCP messaging and SMS messaging for Pi2
 
 import json
