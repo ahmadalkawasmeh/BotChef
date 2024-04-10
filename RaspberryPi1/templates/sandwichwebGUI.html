@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to RoboChef</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .title {
+            color: blue;
+            font-size: 24px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            width: 150px;
+        }
+        .green { background-color: green; color: white; }
+        .red { background-color: red; color: white; }
+        .orange { background-color: orange; color: white; }
+        .textfield {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="breadlevel"></div>
+    <div id="saucelevel"></div>
+    <div id="lettucelevel"></div>
+    <div id="tomatolevel"></div>
+    
+    
+    
+    <div id="welcomePage">
+        <h1 class="title">Welcome to RoboChef</h1>
+        <button class="button green" onclick="showCustomerPage()">Customer</button>
+        <button class="button red" onclick="showEmployeePage()">Employee</button>
+        <img src="https://www.ge.com/news/sites/default/files/Reports/2020-03/Sawyer.gif" alt="Robotic Solutions" />
+    </div>
+    
+    
+    <div id="customerPage" style="display: none;">
+    <form id="CustomerForm" action="http://127.0.0.1:9000/submit" method="post">
+        <input type="hidden" name="type" value="customer">
+        <h1 class="title">Customer Credentials</h1>
+        <div class="textfield">Name: <input type="text" id="customerName" name="customerName" required></div>
+        <div class="textfield">Email: <input type="text" id="customerEmail" name="customerEmail" required></div>
+        <div class="textfield">Phone Number: <input type="text" id="customerPhoneNumber" name="customerPhoneNumber" required></div>
+        <input type="hidden" name="type" value="ingredients">
+        <h1 class="title">Choose your ingredients</h1>
+        <div class="textfield">
+            Bread: <input type="checkbox" id="breadCheckbox" name="ingredients" value="bread">
+            Lettuce: <input type="checkbox" id="lettuceCheckbox" name="ingredients" value="lettuce">
+            Tomato: <input type="checkbox" id="tomatoCheckbox" name="ingredients" value="tomato">
+            Sauce: <input type="checkbox" id="sauceCheckbox" name="ingredients" value="sauce">
+        </div>
+        <button class="button orange" onclick="submitOrder()">Place Order</button>
+        <button class="button orange" onclick="showWelcomePage()">Close</button>
+    </form>
+</div>
+
+
+    
+
+    <div id="employeePage" style="display: none;">
+        <form id="employeeForm" action="http://127.0.0.1:9000/submit" method="post">
+            <input type="hidden" name="type" value="employee">
+            <h1 class="title">Employee Credentials</h1>
+            <div class="textfield">Name: <input type="text" id="employeeName" name="employeeName" required></div>
+            <div class="textfield">Email: <input type="text" id="employeeEmail" name="employeeEmail" required></div>
+            <div class="textfield">Phone Number: <input type="text" id="employeePhoneNumber" name="employeePhoneNumber" required></div>
+            <div id="employeeNameDisplay"></div>
+            <button class="button orange" onclick="submitEmployeeCredentials()">Next</button>
+            <h1 class="title">Current Inventory</h1>
+            <h4><img src="https://cdn-icons-png.flaticon.com/512/4241/4241664.png" style="width: 32px; height: 32px;"> bread:{{ x }}</h4>
+            <h4><img src="https://cdn-icons-png.flaticon.com/512/1585/1585306.png" style="width: 32px; height: 32px;"> sauce:{{ x1}}</h4>
+            <h4><img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3032%2F3032524.png&f=1&nofb=1&ipt=b47df591cbd3a9990b05a0a7d42c3a3f58219edf6db858ad172aa4a3d333ff95&ipo=images" style="width: 32px; height: 32px;"> lettuce:{{ x2 }}</h4>
+            <h4><img src="https://cdn-icons-png.flaticon.com/512/2909/2909894.png" style="width: 32px; height: 32px;"> tomato:{{ x3}}</h4>
+        </form>
+    </div>
+    
+
+    </div>
+
+    
+    <script>
+
+	
+        
+        function showCustomerPage() {
+            document.getElementById('welcomePage').style.display = 'none';
+            document.getElementById('customerPage').style.display = 'block';
+        }
+
+        
+        function showEmployeePage() {
+            document.getElementById('welcomePage').style.display = 'none';
+            document.getElementById('employeePage').style.display = 'block';
+        }
+
+        
+        function submitOrder() {
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const customerPhoneNumber = document.getElementById('customerPhoneNumber').value;
+            const employeeName = document.getElementById('employeeName').value;
+            const employeeEmail = document.getElementById('employeeEmail').value;
+            const employeePhoneNumber = document.getElementById('employeePhoneNumber').value;
+            const breadSelected = document.getElementById('breadCheckbox').checked;
+            const lettuceSelected = document.getElementById('lettuceCheckbox').checked;
+            const tomatoSelected = document.getElementById('tomatoCheckbox').checked;
+            const sauceSelected = document.getElementById('sauceCheckbox').checked;
+
+            const data = {
+                customerName,
+                customerEmail,
+                customerPhoneNumber,
+                employeeName,
+                employeeEmail ,
+                employeePhoneNumber,
+                ingredients: {
+                    bread: breadSelected,
+                    lettuce: lettuceSelected,
+                    tomato: tomatoSelected,
+                    sauce: sauceSelected
+                }
+            };
+	    
+            
+        }
+
+        
+        
+       function showIngredientsPage() {
+        document.getElementById('customerPage').style.display = 'none';
+        document.getElementById('employeePage').style.display = 'none';
+        document.getElementById('chooseIngredientsPage').style.display = 'block';
+        }
+
+
+       function submitEmployeeCredentials() {
+            const employeeName = document.getElementById('employeeName').value;
+            const employeeEmail = document.getElementById('employeeEmail').value;
+            const employeePhoneNumber = document.getElementById('employeePhoneNumber').value;
+            showChooseIngredientsPage();
+
+        }
+
+        
+        function showWelcomePage() {
+            document.getElementById('customerPage').style.display = 'none';
+            document.getElementById('employeePage').style.display = 'none';
+            document.getElementById('chooseIngredientsPage').style.display = 'none';
+            document.getElementById('orderInProgressPage').style.display = 'none';
+            document.getElementById('welcomePage').style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>
+
