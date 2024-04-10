@@ -1,3 +1,8 @@
+# Author: Zach
+# Some functions based off code written by Ahmed
+# This program contains functions related to the operation of Pi2 (bread pi) within the system
+# Responsible for hardware/sensors and firebase updates
+
 from time import time, sleep
 import RPi.GPIO as GPIO
 import RpiMotorLib import RpiMotorLib, rpiservolib
