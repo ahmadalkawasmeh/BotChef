@@ -1,3 +1,7 @@
+# Author: Ahmed
+# Modified by: Zach
+# This program deals with TCP messaging and SMS messaging for Pi2
+
 import json
 import socket
 from time import sleep
