@@ -1,3 +1,7 @@
+# Author: Ahmed
+# Modified by: Zach
+# This program contains functions relating to TCP communication with each Pi
+
 import netifaces as ni
 import pyrebase
 
